@@ -11,6 +11,7 @@ app.use(express.json());
 
 //Models
 const User = require('./models/User');
+const Transaction = require('./models/Transaction');
 
 app.get('/', (req, res) => {
   res.status(200).json({ msg: "backend on fire!🔥"})
@@ -46,6 +47,49 @@ function checkToken(req, res, next) {
     res.status(400).json({ msg: 'token inválido' })
   }
 }
+
+// get transaction
+  app.get('/transactions', async (req, res) => {
+    try {
+      const transctionsList = await Transaction.find();
+      return res.json({transctionsList})
+    } catch (error) {
+      console.log(error)
+    }
+  })
+
+// create transaction
+app.post('/transactions', async (req, res) => {
+  const { name, amount, type, created_at} = req.body;
+
+  if(!name) {
+    return res.status(422).json({ msg: 'Campo nome é obrigatório'})
+  }
+
+  if(!amount) {
+    return res.status(422).json({ msg: 'Campo valor é obrigatório'})
+  }
+
+  if(!type) {
+    return res.status(422).json({ msg: 'Campo tipo é obrigatório'})
+  }
+
+  const transaction = new Transaction({ 
+    name,
+    amount,
+    type,
+    created_at: Date.now()
+  })
+
+  try {
+    await transaction.save();
+    res.status(201).json({ msg: `transação criada com sucesso! ${transaction}`})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ msg: error})
+  }
+
+})
 
 // create user
 app.post('/create-user', async (req, res) => {
@@ -90,7 +134,7 @@ app.post('/create-user', async (req, res) => {
 
   try {
     await user.save();
-    res.status(201).json({ msg: 'usuario criado com sucesso!'})
+    res.status(201).json({ msg: `usuario criado com sucesso! ${user}`})
   } catch (error) {
     console.log(error)
     res.status(500).json({ msg: error})
