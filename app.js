@@ -14,7 +14,7 @@ const User = require('./models/User');
 const Transaction = require('./models/Transaction');
 
 app.get('/', (req, res) => {
-  res.status(200).json({ msg: "backend on fire!🔥"})
+  res.status(200).json({ msg: "Backend on fire!🔥"})
 })
 
 // private route
@@ -78,7 +78,7 @@ app.post('/transactions', async (req, res) => {
     name,
     amount,
     type,
-    created_at: Date.now()
+    created_at
   })
 
   try {
@@ -181,7 +181,7 @@ app.post('/login', async (req, res) => {
 // credentials 
 const dbUser = process.env.DB_USER
 const dbPassword = process.env.DB_PASSWORD
-
+mongoose.set("strictQuery", true);
 mongoose.connect(`mongodb+srv://${dbUser}:${dbPassword}@cluster0.beefml3.mongodb.net/?retryWrites=true&w=majority`,)
 .then(() => {
   app.listen(3000)
