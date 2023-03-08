@@ -5,7 +5,6 @@ const  bcrypt= require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-
 //config JSON respnose
 app.use(express.json());
 
@@ -49,52 +48,61 @@ function checkToken(req, res, next) {
 }
 
 // get transaction
-  app.get('/transactions', async (req, res) => {
+  app.get('/users/:userId/transactions', async (req, res) => {
     try {
-      const transctionsList = await Transaction.find();
-      return res.json({transctionsList})
+      const { userId } = req.params;
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(400).send({ error: 'Usuário não encontrado' });
+      }
+      const transactions = await Transaction.find({ user: userId });
+      console.log(transactions)
+      return res.json({transactions})
     } catch (error) {
       console.log(error)
     }
   })
 
-// create transaction
-app.post('/transactions', async (req, res) => {
-  const { name, amount, type, created_at} = req.body;
+  // create transaction
+  app.post('/transactions/', async (req, res) => {
+    try {
+    const user = await User.findOne({  });
 
-  if(!name) {
-    return res.status(422).json({ msg: 'Campo nome é obrigatório'})
-  }
-
-  if(!amount) {
-    return res.status(422).json({ msg: 'Campo valor é obrigatório'})
-  }
-
-  if(!type) {
-    return res.status(422).json({ msg: 'Campo tipo é obrigatório'})
-  }
-
-  const transaction = new Transaction({ 
-    name,
-    amount,
-    type,
-    created_at
+    const { name, amount, type, created_at} = req.body;
+  
+    if(!name) {
+      return res.status(422).json({ msg: 'Campo nome é obrigatório'})
+    }
+  
+    if(!amount) {
+      return res.status(422).json({ msg: 'Campo valor é obrigatório'})
+    }
+  
+    if(!type) {
+      return res.status(422).json({ msg: 'Campo tipo é obrigatório'})
+    }
+  
+    const transaction = await new Transaction({ 
+      name,
+      amount,
+      type,
+      created_at,
+      user: user._id
+    })
+    console.log(transaction)
+  
+      await transaction.save();
+      res.status(201).json({ msg: `transação criada com sucesso! ${transaction}`})
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({ msg: error})
+    }
+  
   })
-
-  try {
-    await transaction.save();
-    res.status(201).json({ msg: `transação criada com sucesso! ${transaction}`})
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({ msg: error})
-  }
-
-})
-
+  
 // create user
 app.post('/create-user', async (req, res) => {
-  const { name, email, password, password_confirmation } = req.body;
-
+  const { name, email, password, password_confirmation, _id } = req.body;
   if(!name) {
     return res.status(422).json({ msg: 'Campo nome é obrigatório'})
   }

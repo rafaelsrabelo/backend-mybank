@@ -5,9 +5,7 @@ const Transaction = mongoose.model('Transaction', {
   amount: Number,
   type: String,
   created_at: String,
-  user: { type: mongoose.ObjectId, ref: 'User'},
-  // user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
-  transactions: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction'}
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 })
 
 module.exports = Transaction;
